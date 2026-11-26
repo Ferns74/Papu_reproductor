@@ -14,6 +14,7 @@ Reproductor de música local para Android, hecho con Flutter. Reproduce los arch
 
 ## Estructura del proyecto
 
+```
 papu_reprod/
 ├── android/                          Configuración nativa de Android
 │   └── app/src/main/
@@ -37,6 +38,7 @@ papu_reprod/
 │   └── pantalla_ajustes.dart         Pantalla de ajustes
 ├── pubspec.yaml                      Dependencias, versión, fuente e ícono
 └── README.md
+```
 
 ## Tecnologías
 

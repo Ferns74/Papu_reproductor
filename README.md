@@ -12,21 +12,31 @@ Reproductor de música local para Android, hecho con Flutter. Reproduce los arch
 - Pantalla de reproducción con carátula tipo vinilo o cuadrada, y vista ampliada de la imagen
 - Tema azul o modo oscuro, configurable en Ajustes
 
-## Instalación
+## Estructura del proyecto
 
-1. Ve a la sección [Releases](../../releases) y descarga el archivo `.apk` de la última versión.
-2. Ábrelo en tu celular. Si Android lo pide, permite la instalación desde esta fuente.
-3. Al abrir la app, acepta los permisos de audio y de notificaciones.
-
-## Compilar desde el código
-
-Es necesario descargar el SDK de Flutter y el SDK de Android.
-
-```bash
-flutter pub get
-flutter run
-flutter build apk --release
-```
+papu_reprod/
+├── android/                          Configuración nativa de Android
+│   └── app/src/main/
+│       ├── AndroidManifest.xml       Permisos, servicio de audio y nombre de la app
+│       └── res/
+│           ├── drawable/             Íconos del botón aleatorio de la notificación
+│           ├── mipmap-*/             Ícono de la app
+│           └── raw/keep.xml          Evita que Android borre los íconos al compilar
+├── assets/
+│   ├── fonts/                        Fuente Roboto (Regular, Medium y Bold)
+│   └── icon/icono.png                Imagen base del ícono de la app
+├── lib/                              Código de la app (Dart)
+│   ├── main.dart                     Punto de entrada: ajustes, audio y tema
+│   ├── ajustes.dart                  Modo oscuro y estilo de carátula (se guardan en el teléfono)
+│   ├── carpeta.dart                  Árbol de carpetas armado con las rutas de las canciones
+│   ├── controlador_musica.dart       Biblioteca, búsqueda, orden y cola de reproducción
+│   ├── estilo.dart                   Paletas de color, fondo degradado y carátulas pequeñas
+│   ├── manejador_audio.dart          Reproductor y controles de la notificación
+│   ├── pantalla_principal.dart       Pestañas Canciones, Carpetas y Ajustes, y mini reproductor
+│   ├── pantalla_reproduccion.dart    Pantalla completa de reproducción
+│   └── pantalla_ajustes.dart         Pantalla de ajustes
+├── pubspec.yaml                      Dependencias, versión, fuente e ícono
+└── README.md
 
 ## Tecnologías
 
@@ -34,4 +44,4 @@ Flutter, Dart, just_audio, audio_service, on_audio_query_forked, permission_hand
 
 ## Versión actual 
 
-1.0.0s
+1.1.0

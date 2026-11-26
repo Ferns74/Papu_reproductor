@@ -30,12 +30,12 @@ papu_reprod/
 │   ├── main.dart                     Punto de entrada: ajustes, audio y tema
 │   ├── ajustes.dart                  Modo oscuro y estilo de carátula (se guardan en el teléfono)
 │   ├── carpeta.dart                  Árbol de carpetas armado con las rutas de las canciones
-│   ├── controlador_musica.dart       Biblioteca, búsqueda, orden y cola de reproducción
-│   ├── estilo.dart                   Paletas de color, fondo degradado y carátulas pequeñas
-│   ├── manejador_audio.dart          Reproductor y controles de la notificación
+│   ├── controlador_music.dart       Biblioteca, búsqueda, orden y cola de reproducción
+│   ├── style.dart                   Paletas de color, fondo degradado y carátulas pequeñas
+│   ├── control_audio.dart          Reproductor y controles de la notificación
 │   ├── pantalla_principal.dart       Pestañas Canciones, Carpetas y Ajustes, y mini reproductor
 │   ├── pantalla_reproduccion.dart    Pantalla completa de reproducción
-│   └── pantalla_ajustes.dart         Pantalla de ajustes
+│   └── pantalla_settings.dart         Pantalla de ajustes
 ├── pubspec.yaml                      Dependencias, versión, fuente e ícono
 └── README.md
 ```

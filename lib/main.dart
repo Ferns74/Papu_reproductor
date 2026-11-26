@@ -45,6 +45,7 @@ class MiReproductorApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             useMaterial3: true,
+            fontFamily: 'Roboto',
             colorScheme: ColorScheme.fromSeed(
               seedColor: colorAcento,
               brightness: Brightness.dark,

@@ -8,10 +8,18 @@ class Carpeta {
   final Map<String, Carpeta> subcarpetas = {};
   final List<SongModel> canciones = [];
 
-  /// Canciones de esta carpeta y de todas sus subcarpetas.
+  /// Cantidad de canciones de esta carpeta y de todas sus subcarpetas.
   int get total =>
       canciones.length +
       subcarpetas.values.fold(0, (suma, sub) => suma + sub.total);
+
+  /// Las canciones de esta carpeta y de todas sus subcarpetas, en una sola lista.
+  List<SongModel> todasLasCanciones() {
+    return [
+      ...canciones,
+      for (final sub in subcarpetas.values) ...sub.todasLasCanciones(),
+    ];
+  }
 }
 
 int _largoVolumen(List<String> p) {

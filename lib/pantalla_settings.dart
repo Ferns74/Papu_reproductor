@@ -18,7 +18,6 @@ class PantallaAjustes extends StatelessWidget {
               child: SwitchListTile(
                 secondary: const Icon(Icons.dark_mode),
                 title: const Text('Modo oscuro'),
-                subtitle: const Text('Fondo negro en lugar del tema azul'),
                 value: ajustes.temaOscuro,
                 onChanged: ajustes.cambiarTemaOscuro,
               ),

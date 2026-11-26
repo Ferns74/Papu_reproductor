@@ -26,6 +26,12 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
       ControladorMusica(widget.manejador, widget.ajustes);
   int _seccion = 0;
 
+  // Navegación y búsqueda de la pestaña Carpetas. Viven aquí (y no dentro
+  // de la pestaña) para poder manejar el botón de retroceso del teléfono.
+  final List<Carpeta> _subniveles = [];
+  final TextEditingController _textoCarpetas = TextEditingController();
+  String _busquedaCarpetas = '';
+
   @override
   void initState() {
     super.initState();
@@ -34,8 +40,30 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
 
   @override
   void dispose() {
+    _textoCarpetas.dispose();
     c.dispose();
     super.dispose();
+  }
+
+  void _limpiarBusquedaCarpetas() {
+    _textoCarpetas.clear();
+    _busquedaCarpetas = '';
+  }
+
+  void _buscarEnCarpetas(String texto) =>
+      setState(() => _busquedaCarpetas = texto.trim().toLowerCase());
+
+  void _entrar(Carpeta carpeta) => setState(() {
+        _limpiarBusquedaCarpetas();
+        _subniveles.add(carpeta);
+      });
+
+  void _volver() {
+    if (_subniveles.isEmpty) return;
+    setState(() {
+      _limpiarBusquedaCarpetas();
+      _subniveles.removeLast();
+    });
   }
 
   @override
@@ -45,68 +73,86 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     return ListenableBuilder(
       listenable: c,
       builder: (context, _) {
-        return FondoDegradado(
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            appBar: AppBar(
+        // El retroceso del teléfono solo se intercepta en la pestaña
+        // Carpetas, cuando hay algo que deshacer (búsqueda o subcarpeta).
+        final puedeSalir = !(_seccion == 1 &&
+            (_subniveles.isNotEmpty || _busquedaCarpetas.isNotEmpty));
+
+        return PopScope(
+          canPop: puedeSalir,
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) return;
+            if (_busquedaCarpetas.isNotEmpty) {
+              setState(_limpiarBusquedaCarpetas);
+            } else {
+              _volver();
+            }
+          },
+          child: FondoDegradado(
+            child: Scaffold(
               backgroundColor: Colors.transparent,
-              title: Text(
-                titulos[_seccion],
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 26),
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                title: Text(
+                  titulos[_seccion],
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 26),
+                ),
+                actions: [
+                  if (_seccion != 2)
+                    PopupMenuButton<Orden>(
+                      icon: const Icon(Icons.sort),
+                      tooltip: 'Ordenar',
+                      initialValue: c.orden,
+                      onSelected: c.cambiarOrden,
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(
+                            value: Orden.nombreAsc,
+                            child: Text('Nombre (A-Z)')),
+                        PopupMenuItem(
+                            value: Orden.nombreDesc,
+                            child: Text('Nombre (Z-A)')),
+                        PopupMenuItem(
+                            value: Orden.fechaReciente,
+                            child: Text('Fecha: más recientes')),
+                        PopupMenuItem(
+                            value: Orden.fechaAntigua,
+                            child: Text('Fecha: más antiguas')),
+                      ],
+                    ),
+                ],
               ),
-              actions: [
-                if (_seccion != 2)
-                  PopupMenuButton<Orden>(
-                    icon: const Icon(Icons.sort),
-                    tooltip: 'Ordenar',
-                    initialValue: c.orden,
-                    onSelected: c.cambiarOrden,
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(
-                          value: Orden.nombreAsc, child: Text('Nombre (A-Z)')),
-                      PopupMenuItem(
-                          value: Orden.nombreDesc,
-                          child: Text('Nombre (Z-A)')),
-                      PopupMenuItem(
-                          value: Orden.fechaReciente,
-                          child: Text('Fecha: más recientes')),
-                      PopupMenuItem(
-                          value: Orden.fechaAntigua,
-                          child: Text('Fecha: más antiguas')),
+              body: _cuerpo(),
+              bottomNavigationBar: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  MiniReproductor(c: c),
+                  NavigationBar(
+                    backgroundColor: Colors.black.withValues(alpha: 0.25),
+                    indicatorColor: colorAcento.withValues(alpha: 0.25),
+                    selectedIndex: _seccion,
+                    onDestinationSelected: (i) =>
+                        setState(() => _seccion = i),
+                    destinations: const [
+                      NavigationDestination(
+                        icon: Icon(Icons.music_note_outlined),
+                        selectedIcon: Icon(Icons.music_note),
+                        label: 'Canciones',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.folder_outlined),
+                        selectedIcon: Icon(Icons.folder),
+                        label: 'Carpetas',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.settings_outlined),
+                        selectedIcon: Icon(Icons.settings),
+                        label: 'Ajustes',
+                      ),
                     ],
                   ),
-              ],
-            ),
-            body: _cuerpo(),
-            bottomNavigationBar: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                MiniReproductor(c: c),
-                NavigationBar(
-                  backgroundColor: Colors.black.withValues(alpha: 0.25),
-                  indicatorColor: colorAcento.withValues(alpha: 0.25),
-                  selectedIndex: _seccion,
-                  onDestinationSelected: (i) => setState(() => _seccion = i),
-                  destinations: const [
-                    NavigationDestination(
-                      icon: Icon(Icons.music_note_outlined),
-                      selectedIcon: Icon(Icons.music_note),
-                      label: 'Canciones',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.folder_outlined),
-                      selectedIcon: Icon(Icons.folder),
-                      label: 'Carpetas',
-                    ),
-                    NavigationDestination(
-                      icon: Icon(Icons.settings_outlined),
-                      selectedIcon: Icon(Icons.settings),
-                      label: 'Ajustes',
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -119,7 +165,15 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
       index: _seccion,
       children: [
         _conEstado(_TabCanciones(c: c)),
-        _conEstado(_TabCarpetas(c: c)),
+        _conEstado(_TabCarpetas(
+          c: c,
+          subniveles: _subniveles,
+          texto: _textoCarpetas,
+          busqueda: _busquedaCarpetas,
+          onBuscar: _buscarEnCarpetas,
+          onEntrar: _entrar,
+          onVolver: _volver,
+        )),
         PantallaAjustes(ajustes: widget.ajustes),
       ],
     );
@@ -150,8 +204,6 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
     return contenido;
   }
 }
-
-// ---------------- Tarjeta redondeada (compartida) ----------------
 
 class _Tarjeta extends StatelessWidget {
   const _Tarjeta({required this.child, this.resaltada = false});
@@ -257,22 +309,38 @@ class _TabCancionesState extends State<_TabCanciones> {
 
 // ---------------- Pestaña: Carpetas ----------------
 
-class _TabCarpetas extends StatefulWidget {
-  const _TabCarpetas({required this.c});
+class _TabCarpetas extends StatelessWidget {
+  const _TabCarpetas({
+    required this.c,
+    required this.subniveles,
+    required this.texto,
+    required this.busqueda,
+    required this.onBuscar,
+    required this.onEntrar,
+    required this.onVolver,
+  });
+
   final ControladorMusica c;
+  final List<Carpeta> subniveles;
+  final TextEditingController texto;
+  final String busqueda;
+  final ValueChanged<String> onBuscar;
+  final ValueChanged<Carpeta> onEntrar;
+  final VoidCallback onVolver;
 
-  @override
-  State<_TabCarpetas> createState() => _TabCarpetasState();
-}
-
-class _TabCarpetasState extends State<_TabCarpetas> {
-  late final List<Carpeta> _pila = [widget.c.raiz];
+  bool _coincide(SongModel s) =>
+      s.title.toLowerCase().contains(busqueda) ||
+      nombreArtista(s).toLowerCase().contains(busqueda);
 
   @override
   Widget build(BuildContext context) {
-    final c = widget.c;
-    final carpeta = _pila.last;
+    // La carpeta actual es la última de la lista; si está vacía, la raíz.
+    final carpeta = subniveles.isEmpty ? c.raiz : subniveles.last;
+    final buscando = busqueda.isNotEmpty;
 
+    final resultados = buscando
+        ? c.ordenar(carpeta.todasLasCanciones().where(_coincide).toList())
+        : <SongModel>[];
     final subs = carpeta.subcarpetas.values.toList()
       ..sort(
           (a, b) => a.nombre.toLowerCase().compareTo(b.nombre.toLowerCase()));
@@ -280,52 +348,104 @@ class _TabCarpetasState extends State<_TabCarpetas> {
 
     return Column(
       children: [
-        if (_pila.length > 1)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: TextField(
+            controller: texto,
+            onChanged: onBuscar,
+            decoration: InputDecoration(
+              hintText: subniveles.isEmpty
+                  ? 'Buscar en todas las carpetas'
+                  : 'Buscar en ${carpeta.nombre}',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: buscando
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        texto.clear();
+                        onBuscar('');
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.08),
+              isDense: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(28),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ),
+        if (subniveles.isNotEmpty)
           _Tarjeta(
             child: ListTile(
               leading: const Icon(Icons.arrow_back),
               title: const Text('Volver'),
               subtitle: Text(carpeta.ruta,
                   maxLines: 1, overflow: TextOverflow.ellipsis),
-              onTap: () => setState(() => _pila.removeLast()),
+              onTap: onVolver,
             ),
           ),
         Expanded(
-          child: ListView.builder(
-            itemCount: subs.length + canciones.length,
-            itemBuilder: (context, i) {
-              if (i < subs.length) {
-                final sub = subs[i];
-                return _Tarjeta(
-                  child: ListTile(
-                    leading: Container(
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: colorAcento.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(Icons.folder, color: colorAcento),
-                    ),
-                    title: Text(sub.nombre,
-                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                    subtitle: Text('${sub.total} canciones'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => setState(() => _pila.add(sub)),
-                  ),
-                );
-              }
-              final j = i - subs.length;
-              final cancion = canciones[j];
-              return _FilaCancion(
-                cancion: cancion,
-                sonando: cancion.id == c.actual?.id,
-                onTap: () => c.reproducirLista(canciones, j),
-              );
-            },
-          ),
+          child: buscando
+              ? _listaResultados(resultados)
+              : _listaCarpeta(subs, canciones),
         ),
       ],
+    );
+  }
+
+  Widget _listaResultados(List<SongModel> resultados) {
+    if (resultados.isEmpty) {
+      return const Center(child: Text('Sin resultados'));
+    }
+    return ListView.builder(
+      itemCount: resultados.length,
+      itemBuilder: (context, i) {
+        final cancion = resultados[i];
+        return _FilaCancion(
+          cancion: cancion,
+          sonando: cancion.id == c.actual?.id,
+          onTap: () => c.reproducirLista(resultados, i),
+        );
+      },
+    );
+  }
+
+  Widget _listaCarpeta(List<Carpeta> subs, List<SongModel> canciones) {
+    return ListView.builder(
+      itemCount: subs.length + canciones.length,
+      itemBuilder: (context, i) {
+        if (i < subs.length) {
+          final sub = subs[i];
+          return _Tarjeta(
+            child: ListTile(
+              leading: Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: colorAcento.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.folder, color: colorAcento),
+              ),
+              title: Text(sub.nombre,
+                  maxLines: 1, overflow: TextOverflow.ellipsis),
+              subtitle: Text('${sub.total} canciones'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => onEntrar(sub),
+            ),
+          );
+        }
+        final j = i - subs.length;
+        final cancion = canciones[j];
+        return _FilaCancion(
+          cancion: cancion,
+          sonando: cancion.id == c.actual?.id,
+          onTap: () => c.reproducirLista(canciones, j),
+        );
+      },
     );
   }
 }

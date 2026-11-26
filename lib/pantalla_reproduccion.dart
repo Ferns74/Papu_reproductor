@@ -124,11 +124,9 @@ class _PantallaReproduccionState extends State<PantallaReproduccion>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // Aleatorio a la IZQUIERDA
-                          IconButton(
-                            icon: Icon(
-                              Icons.shuffle,
-                              color: c.aleatorio ? colorAcento : Colors.white70,
-                            ),
+                         _Boton(
+                            icono: Icons.shuffle,
+                            activo: c.aleatorio,
                             onPressed: c.alternarAleatorio,
                           ),
                           IconButton(
@@ -171,15 +169,11 @@ class _PantallaReproduccionState extends State<PantallaReproduccion>
                             onPressed: c.siguiente,
                           ),
                           // Repetir a la DERECHA
-                          IconButton(
-                            icon: Icon(
-                              c.repetir == LoopMode.one
-                                  ? Icons.repeat_one
-                                  : Icons.repeat,
-                              color: c.repetir == LoopMode.off
-                                  ? Colors.white70
-                                  : colorAcento,
-                            ),
+                          _Boton(
+                            icono: c.repetir == LoopMode.one
+                                ? Icons.repeat_one
+                                : Icons.repeat,
+                            activo: c.repetir != LoopMode.off,
                             onPressed: c.alternarRepetir,
                           ),
                         ],
@@ -399,6 +393,44 @@ class _BarraProgreso extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _Boton extends StatelessWidget {
+  const _Boton({
+    required this.icono,
+    required this.activo,
+    required this.onPressed,
+  });
+
+  final IconData icono;
+  final bool activo;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Espacio arriba igual al de la bolita de abajo, para que el
+        // ícono quede alineado con los demás botones de la fila.
+        const SizedBox(height: 7),
+        IconButton(
+          icon: Icon(icono, color: activo ? colorAcento : Colors.white54),
+          onPressed: onPressed,
+        ),
+        const SizedBox(height: 2),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 5,
+          height: 5,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: activo ? colorAcento : Colors.transparent,
+          ),
+        ),
+      ],
     );
   }
 }

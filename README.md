@@ -28,7 +28,7 @@ papu_reprod/
 │   └── icon/icono.png                Imagen base del ícono de la app
 ├── lib/                              Código de la app (Dart)
 │   ├── main.dart                     Punto de entrada: ajustes, audio y tema
-│   ├── ajustes.dart                  Modo oscuro y estilo de carátula (se guardan en el teléfono)
+│   ├── settings.dart                  Modo oscuro y estilo de carátula (se guardan en el teléfono)
 │   ├── carpeta.dart                  Árbol de carpetas armado con las rutas de las canciones
 │   ├── controlador_music.dart       Biblioteca, búsqueda, orden y cola de reproducción
 │   ├── style.dart                   Paletas de color, fondo degradado y carátulas pequeñas
